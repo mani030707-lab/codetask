@@ -74,7 +74,7 @@ function updateCartBadge() {
 }
 
 // ============================================================
-//  AUTH MODAL
+//  AUTH MODEL
 // ============================================================
 function showAuthModal() { document.getElementById("auth-modal").style.display = "flex"; }
 function hideAuthModal() { document.getElementById("auth-modal").style.display = "none"; }
