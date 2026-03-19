@@ -74,7 +74,7 @@ function updateCartBadge() {
 }
 
 // ============================================================
-//  AUTH MODEL
+//  AUTH MOD
 // ============================================================
 function showAuthModal() { document.getElementById("auth-modal").style.display = "flex"; }
 function hideAuthModal() { document.getElementById("auth-modal").style.display = "none"; }
@@ -135,7 +135,7 @@ function initAuthModal() {
   options: {
     redirectTo: 'http://localhost:3000'
   }
-})
+});
     if (error) {
       // Show error in whichever tab is currently visible
       const activeErr = document.getElementById("auth-login").style.display !== "none"
