@@ -1,10 +1,9 @@
 
-const SUPABASE_URL = "https://ciynlwxztxxbgnriwktx.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpeW5sd3h6dHh4Ymducml3a3R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTQxMzMsImV4cCI6MjA4ODczMDEzM30.EzdlIMv6Jnu7EJX9yWw3wKC280fQJI54H_iOKFnk3mA";
+const SUPABASE_URL = "https://snunmgnlrvbbsitjhhys.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNudW5tZ25scnZiYnNpdGpoaHlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzE3ODQsImV4cCI6MjA4OTUwNzc4NH0.a2OPUoxnJOzcV_VihzqoWP87-9ZSBgKLy7WvX3NwWyk";
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 const products = [
   { id: "e43638ce-6aa0-4b85-b27f-e1d07eb678c6", image: "images/products/athletic-cotton-socks-6-pairs.jpg", name: "Black and Gray Athletic Cotton Socks - 6 Pairs", rating: { stars: 4.5, count: 9.6 }, pricePaise: 10000, keywords: ["socks", "athletic", "clothing"] },
   { id: "15b6fc6f-327a-4ec4-896f-486349e85a3d", image: "images/products/intermediate-composite-basketball.jpg", name: "Intermediate Size Basketball", rating: { stars: 4, count: 9.2 }, pricePaise: 200000, keywords: ["basketball", "sports", "ball"] },
