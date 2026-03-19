@@ -130,12 +130,12 @@ function initAuthModal() {
 
   // Google Sign-In (shared handler for both login & signup tabs)
   async function handleGoogleSignIn() {
-    const { error } = await db.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.href   // returns user back to the same page
-      }
-    });
+    const { error } = await supabase.auth.signInWithOAuth({
+  provider: 'google',
+  options: {
+    redirectTo: 'http://localhost:3000'
+  }
+})
     if (error) {
       // Show error in whichever tab is currently visible
       const activeErr = document.getElementById("auth-login").style.display !== "none"
