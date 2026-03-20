@@ -1,7 +1,6 @@
-
 const SUPABASE_URL = "https://snunmgnlrvbbsitjhhys.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNudW5tZ25scnZiYnNpdGpoaHlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzE3ODQsImV4cCI6MjA4OTUwNzc4NH0.a2OPUoxnJOzcV_VihzqoWP87-9ZSBgKLy7WvX3NwWyk";
-
+ 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const products = [
@@ -30,55 +29,55 @@ const products = [
   { id: "6a1e8c2f-4d9b-4b7c-9a53-1c8d7e2f5b62", image: "images/products/variations/plain-hooded-fleece-sweatshirt-yellow.jpg", name: "hooded sweatshirt", rating: { stars: 4.5, count: 9.0 }, pricePaise: 35000, keywords: ["hoode", "sweat shirt", "shirt"] },
   { id: "4c9b2a7e-1f6d-4a8e-8b24-7d3a9c1e5f77", image: "images/products/variations/men-slim-fit-summer-shorts-gray.jpg", name: "men-slim-fit-summer-shorts-gray", rating: { stars: 3.5, count: 8.5 }, pricePaise: 39900, keywords: ["shorts", "pants"] }
 ];
-
+ 
 // ============================================================
 //  STATE
 // ============================================================
 let currentUser = null;   // Supabase user object
 let cart = [];            // [{ productId, quantity, deliveryOptionId }]
 let currentTrackingItem = null;
-
+ 
 const deliveryOptions = [
   { id: "1", label: "FREE Shipping",  pricePaise: 0,   daysOffset: 7 },
   { id: "2", label: "₹4.99 Shipping", pricePaise: 499, daysOffset: 3 },
   { id: "3", label: "₹9.99 Shipping", pricePaise: 999, daysOffset: 1 }
 ];
-
+ 
 // ============================================================
 //  HELPERS
 // ============================================================
 function getProduct(productId) { return products.find(p => p.id === productId); }
-
+ 
 function formatPrice(paise) {
   const rupees = Math.floor(paise / 100);
   const rem    = paise % 100;
   return `₹${rupees}.${String(rem).padStart(2, "0")}`;
 }
-
+ 
 function getStarHTML(stars) {
   const r = Math.round(stars * 2) / 2;
   return `<div style="color:rgb(255,164,28); font-size:18px;">${'★'.repeat(Math.floor(r))}${r % 1 !== 0 ? '½' : ''}${'☆'.repeat(5 - Math.ceil(r))}</div>`;
 }
-
+ 
 function getFutureDate(daysOffset) {
   const date = new Date();
   date.setDate(date.getDate() + daysOffset);
   return date.toLocaleDateString("en-IN", { weekday: "long", month: "long", day: "numeric" });
 }
-
+ 
 function calculateCartQuantity() { return cart.reduce((t, i) => t + i.quantity, 0); }
-
+ 
 function updateCartBadge() {
   const total = calculateCartQuantity();
   document.querySelectorAll(".cart-quantity, .js-items-count-header").forEach(el => el.textContent = total);
 }
-
+ 
 // ============================================================
 //  AUTH MODAL
 // ============================================================
 function showAuthModal() { document.getElementById("auth-modal").style.display = "flex"; }
 function hideAuthModal() { document.getElementById("auth-modal").style.display = "none"; }
-
+ 
 function initAuthModal() {
   // Tab switching
   document.querySelectorAll(".auth-tab").forEach(tab => {
@@ -89,26 +88,26 @@ function initAuthModal() {
       document.getElementById("auth-signup").style.display = tab.dataset.tab === "signup" ? "block" : "none";
     });
   });
-
+ 
   // Login
   document.getElementById("btn-login").addEventListener("click", async () => {
     const email    = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value;
     const errEl    = document.getElementById("login-error");
     errEl.textContent = "";
-
+ 
     if (!email || !password) {
       errEl.textContent = "Please enter your email and password.";
       return;
     }
-
+ 
     const { data, error } = await db.auth.signInWithPassword({ email, password });
     if (error) { errEl.textContent = error.message; return; }
-
+ 
     currentUser = data.user;
     await onLogin();
   });
-
+ 
   // Sign up
   document.getElementById("btn-signup").addEventListener("click", async () => {
     const name     = document.getElementById("signup-name").value.trim();
@@ -117,7 +116,7 @@ function initAuthModal() {
     const errEl    = document.getElementById("signup-error");
     const sucEl    = document.getElementById("signup-success");
     errEl.textContent = ""; sucEl.textContent = "";
-
+ 
     if (!name || !email || !password) {
       errEl.textContent = "Please fill in all fields.";
       return;
@@ -126,22 +125,22 @@ function initAuthModal() {
       errEl.textContent = "Password must be at least 6 characters.";
       return;
     }
-
+ 
     const { data, error } = await db.auth.signUp({
       email, password,
       options: { data: { full_name: name } }
     });
-
+ 
     if (error) { errEl.textContent = error.message; return; }
-
+ 
     // Upsert profile row
     if (data.user) {
       await db.from("profiles").upsert({ id: data.user.id, full_name: name, email });
     }
-
+ 
     sucEl.textContent = "Account created! Check your email to confirm, then log in.";
   });
-
+ 
   // FIX: Use db (the initialized Supabase client) instead of the raw supabase namespace.
   // FIX: Use window.location.origin for redirectTo so it works in both dev and production.
   async function handleGoogleSignIn() {
@@ -159,11 +158,11 @@ function initAuthModal() {
       activeErr.textContent = error.message;
     }
   }
-
+ 
   document.getElementById("btn-google-login").addEventListener("click", handleGoogleSignIn);
   document.getElementById("btn-google-signup").addEventListener("click", handleGoogleSignIn);
 }
-
+ 
 async function onLogin() {
   hideAuthModal();
   updateUserUI();
@@ -171,7 +170,7 @@ async function onLogin() {
   updateCartBadge();
   navigateTo("home");
 }
-
+ 
 function updateUserUI() {
   const greeting = document.querySelector(".js-user-greeting");
   const logoutBtn = document.querySelector(".js-logout-btn");
@@ -180,7 +179,7 @@ function updateUserUI() {
   greeting.textContent = `Hi, ${name.split(" ")[0]}`;
   logoutBtn.style.display = "inline-block";
 }
-
+ 
 // ============================================================
 //  CART  —  Supabase  (table: cart_items)
 //  Columns: id (uuid pk), user_id, product_id, quantity, delivery_option_id
@@ -191,7 +190,7 @@ async function loadCartFromDB() {
     .from("cart_items")
     .select("*")
     .eq("user_id", currentUser.id);
-
+ 
   if (error) { console.error("Load cart error:", error); return; }
   cart = (data || []).map(row => ({
     productId:        row.product_id,
@@ -199,7 +198,7 @@ async function loadCartFromDB() {
     deliveryOptionId: row.delivery_option_id || "1"
   }));
 }
-
+ 
 async function syncCartItemToDB(productId) {
   if (!currentUser) return;
   const item = cart.find(i => i.productId === productId);
@@ -218,35 +217,35 @@ async function syncCartItemToDB(productId) {
     }, { onConflict: "user_id,product_id" });
   }
 }
-
+ 
 async function addToCart(productId, quantity) {
   const existing = cart.find(i => i.productId === productId);
   if (existing) { existing.quantity += quantity; }
   else           { cart.push({ productId, quantity, deliveryOptionId: "1" }); }
   await syncCartItemToDB(productId);
 }
-
+ 
 async function removeFromCart(productId) {
   cart = cart.filter(i => i.productId !== productId);
   await syncCartItemToDB(productId);
 }
-
+ 
 async function updateQuantity(productId, newQuantity) {
   const item = cart.find(i => i.productId === productId);
   if (item) { item.quantity = newQuantity; await syncCartItemToDB(productId); }
 }
-
+ 
 async function updateDeliveryOption(productId, deliveryOptionId) {
   const item = cart.find(i => i.productId === productId);
   if (item) { item.deliveryOptionId = deliveryOptionId; await syncCartItemToDB(productId); }
 }
-
+ 
 async function clearCart() {
   cart = [];
   if (!currentUser) return;
   await db.from("cart_items").delete().eq("user_id", currentUser.id);
 }
-
+ 
 // ============================================================
 //  ORDERS  —  Supabase  (tables: orders + order_items)
 //  orders:      id, user_id, placed_date, total_paise, status
@@ -256,7 +255,7 @@ async function clearCart() {
 async function placeOrder() {
   if (!currentUser) { alert("Please log in to place an order."); showAuthModal(); return; }
   if (cart.length === 0) { alert("Your cart is empty."); return; }
-
+ 
   // Calculate total
   let totalPaise = 0;
   const itemRows = cart.map(cartItem => {
@@ -274,7 +273,7 @@ async function placeOrder() {
       status:        "Preparing"
     };
   });
-
+ 
   // Insert order
   const { data: orderData, error: orderErr } = await db
     .from("orders")
@@ -286,20 +285,20 @@ async function placeOrder() {
     })
     .select()
     .single();
-
+ 
   if (orderErr) { console.error("Order insert error:", orderErr); alert("Could not place order. Try again."); return; }
-
+ 
   // Insert order items
   const orderId = orderData.id;
   const itemsWithOrderId = itemRows.map(row => ({ ...row, order_id: orderId }));
   const { error: itemsErr } = await db.from("order_items").insert(itemsWithOrderId);
   if (itemsErr) { console.error("Order items error:", itemsErr); }
-
+ 
   await clearCart();
   updateCartBadge();
   navigateTo("orders");
 }
-
+ 
 async function loadOrders() {
   if (!currentUser) return [];
   const { data: ordersData, error: ordersErr } = await db
@@ -307,11 +306,11 @@ async function loadOrders() {
     .select("*, order_items(*)")
     .eq("user_id", currentUser.id)
     .order("placed_date", { ascending: false });
-
+ 
   if (ordersErr) { console.error("Load orders error:", ordersErr); return []; }
   return ordersData || [];
 }
-
+ 
 // ============================================================
 //  NAVIGATION
 // ============================================================
@@ -319,26 +318,26 @@ function navigateTo(pageId) {
   document.querySelectorAll(".page-view").forEach(p => p.style.display = "none");
   document.querySelector(".js-standard-header").style.display = "none";
   document.querySelector(".js-checkout-header").style.display = "none";
-
+ 
   if (pageId === "checkout") { document.querySelector(".js-checkout-header").style.display = "flex"; }
   else                       { document.querySelector(".js-standard-header").style.display = "flex"; }
-
+ 
   document.getElementById("page-" + pageId).style.display = "block";
-
+ 
   if      (pageId === "home")     { renderProducts(products); }
   else if (pageId === "checkout") { renderOrderSummary(); }
   else if (pageId === "orders")   { renderOrders(); }
   else if (pageId === "tracking") { renderTrackingPage(); }
-
+ 
   updateCartBadge();
   window.scrollTo(0, 0);
 }
-
+ 
 // ============================================================
 //  RENDER: PRODUCTS
 // ============================================================
 const addedMessageTimers = {};
-
+ 
 function renderProducts(productList) {
   const grid = document.querySelector(".js-products-grid");
   if (!grid) return;
@@ -373,7 +372,7 @@ function renderProducts(productList) {
   grid.innerHTML = html;
   attachAddToCartListeners();
 }
-
+ 
 function attachAddToCartListeners() {
   document.querySelectorAll(".js-add-to-cart").forEach(btn => {
     btn.addEventListener("click", async () => {
@@ -386,7 +385,7 @@ function attachAddToCartListeners() {
     });
   });
 }
-
+ 
 function showAddedMessage(productId) {
   const el = document.querySelector(`.js-added-to-cart-${productId}`);
   if (!el) return;
@@ -394,7 +393,7 @@ function showAddedMessage(productId) {
   if (addedMessageTimers[productId]) clearTimeout(addedMessageTimers[productId]);
   addedMessageTimers[productId] = setTimeout(() => { el.style.opacity = "0"; }, 2000);
 }
-
+ 
 function filterProducts(query) {
   const q = query.toLowerCase().trim();
   if (!q) { renderProducts(products); return; }
@@ -402,7 +401,7 @@ function filterProducts(query) {
     p.name.toLowerCase().includes(q) || p.keywords.some(k => k.toLowerCase().includes(q))
   ));
 }
-
+ 
 function attachSearchListeners() {
   const bars    = document.querySelectorAll(".search-bar");
   const buttons = document.querySelectorAll(".search-button");
@@ -415,14 +414,14 @@ function attachSearchListeners() {
     });
   });
 }
-
+ 
 // ============================================================
 //  RENDER: CHECKOUT
 // ============================================================
 function renderOrderSummary() {
   const container = document.querySelector(".order-summary");
   if (!container) return;
-
+ 
   if (cart.length === 0) {
     container.innerHTML = `
       <div style="padding:30px; text-align:center;">
@@ -431,7 +430,7 @@ function renderOrderSummary() {
       </div>`;
     renderPaymentSummary(); return;
   }
-
+ 
   let html = "";
   cart.forEach(cartItem => {
     const product = getProduct(cartItem.productId);
@@ -483,7 +482,7 @@ function renderOrderSummary() {
   attachCheckoutListeners();
   renderPaymentSummary();
 }
-
+ 
 function renderPaymentSummary() {
   let itemsTotal = 0, shippingTotal = 0, totalQty = 0;
   cart.forEach(cartItem => {
@@ -496,7 +495,7 @@ function renderPaymentSummary() {
   const tax      = Math.round(itemsTotal * 0.1);
   const subtotal = itemsTotal + shippingTotal;
   const total    = subtotal + tax;
-
+ 
   document.querySelectorAll(".js-items-count").forEach(el => el.textContent = totalQty);
   document.querySelector(".js-payment-items").textContent    = formatPrice(itemsTotal);
   document.querySelector(".js-payment-shipping").textContent = formatPrice(shippingTotal);
@@ -504,7 +503,7 @@ function renderPaymentSummary() {
   document.querySelector(".js-payment-tax").textContent      = formatPrice(tax);
   document.querySelector(".js-payment-total").textContent    = formatPrice(total);
 }
-
+ 
 function attachCheckoutListeners() {
   document.querySelectorAll(".js-delete-link").forEach(link => {
     link.addEventListener("click", async () => {
@@ -515,14 +514,14 @@ function attachCheckoutListeners() {
       if (cart.length === 0) renderOrderSummary();
     });
   });
-
+ 
   document.querySelectorAll(".js-update-link").forEach(link => {
     link.addEventListener("click", () => {
       const container = document.querySelector(`.js-quantity-input-container-${link.dataset.productId}`);
       if (container) container.style.display = container.style.display === "none" ? "block" : "none";
     });
   });
-
+ 
   document.querySelectorAll(".js-save-link").forEach(link => {
     link.addEventListener("click", async () => {
       const pid   = link.dataset.productId;
@@ -536,7 +535,7 @@ function attachCheckoutListeners() {
       updateCartBadge(); renderPaymentSummary();
     });
   });
-
+ 
   document.querySelectorAll(".delivery-option-input").forEach(radio => {
     radio.addEventListener("change", async () => {
       await updateDeliveryOption(radio.dataset.productId, radio.dataset.deliveryId);
@@ -546,11 +545,11 @@ function attachCheckoutListeners() {
     });
   });
 }
-
+ 
 function attachPlaceOrderListener() {
   document.querySelector(".place-order-button")?.addEventListener("click", placeOrder);
 }
-
+ 
 // ============================================================
 //  RENDER: ORDERS
 // ============================================================
@@ -558,12 +557,12 @@ async function renderOrders() {
   const grid = document.querySelector(".orders-grid");
   if (!grid) return;
   grid.innerHTML = `<p style="padding:20px; color:#888;">Loading orders…</p>`;
-
+ 
   if (!currentUser) {
     grid.innerHTML = `<div style="padding:30px; text-align:center;"><p style="font-size:18px; margin-bottom:15px;">Please log in to see your orders.</p><button class="button-primary" style="padding:10px 20px;" onclick="showAuthModal()">Login</button></div>`;
     return;
   }
-
+ 
   const orders = await loadOrders();
   if (orders.length === 0) {
     grid.innerHTML = `
@@ -573,7 +572,7 @@ async function renderOrders() {
       </div>`;
     return;
   }
-
+ 
   let html = "";
   orders.forEach(order => {
     const items = order.order_items || [];
@@ -615,7 +614,7 @@ async function renderOrders() {
   grid.innerHTML = html;
   attachOrderListeners();
 }
-
+ 
 function attachOrderListeners() {
   document.querySelectorAll(".js-buy-again").forEach(btn => {
     btn.addEventListener("click", async () => {
@@ -627,7 +626,7 @@ function attachOrderListeners() {
       setTimeout(() => { msgEl.textContent = "Buy it again"; }, 1500);
     });
   });
-
+ 
   document.querySelectorAll(".js-track-package").forEach(btn => {
     btn.addEventListener("click", () => {
       currentTrackingItem = JSON.parse(btn.dataset.item);
@@ -635,7 +634,7 @@ function attachOrderListeners() {
     });
   });
 }
-
+ 
 // ============================================================
 //  RENDER: TRACKING
 // ============================================================
@@ -644,30 +643,30 @@ const STATUS_CONFIG = {
   "Shipped":   { progressWidth: "50%",  labelIndex: 1 },
   "Delivered": { progressWidth: "100%", labelIndex: 2 }
 };
-
+ 
 function renderTrackingPage() {
   const item   = currentTrackingItem || { name: "Demo Product", image: "", quantity: 1, deliveryDate: "Unknown", status: "Preparing" };
   const config = STATUS_CONFIG[item.status] || STATUS_CONFIG["Shipped"];
-
+ 
   document.querySelector("#page-tracking .delivery-date").textContent = `Arriving on ${item.deliveryDate}`;
   const infos = document.querySelectorAll("#page-tracking .product-info");
   if (infos[0]) infos[0].textContent = item.name;
   if (infos[1]) infos[1].textContent = `Quantity: ${item.quantity}`;
-
+ 
   const img = document.querySelector("#page-tracking .product-image");
   if (img) { img.src = item.image; img.alt = item.name; }
-
+ 
   const labels = document.querySelectorAll("#page-tracking .progress-label");
   labels.forEach(l => l.classList.remove("current-status"));
   if (labels[config.labelIndex]) labels[config.labelIndex].classList.add("current-status");
-
+ 
   const bar = document.querySelector("#page-tracking .progress-bar");
   if (bar) {
     bar.style.width = "0%";
     setTimeout(() => { bar.style.transition = "width 1s ease-in-out"; bar.style.width = config.progressWidth; }, 100);
   }
 }
-
+ 
 // ============================================================
 //  LOGOUT
 // ============================================================
@@ -679,7 +678,7 @@ async function logout() {
   updateCartBadge();
   navigateTo("home");
 }
-
+ 
 // ============================================================
 //  INIT
 // ============================================================
@@ -687,10 +686,10 @@ window.onload = async function () {
   initAuthModal();
   attachSearchListeners();
   attachPlaceOrderListener();
-
+ 
   // Logout button
   document.querySelector(".js-logout-btn")?.addEventListener("click", logout);
-
+ 
   // Restore session
   const { data: { session } } = await db.auth.getSession();
   if (session) {
@@ -700,12 +699,12 @@ window.onload = async function () {
   } else {
     showAuthModal();
   }
-
+ 
   // Listen for auth changes (handles Google OAuth redirect callbacks automatically)
   db.auth.onAuthStateChange(async (_event, session) => {
     if (session) {
       currentUser = session.user;
-
+ 
       // For Google OAuth users, upsert profile row if it doesn't exist yet
       if (currentUser.app_metadata?.provider === "google" || currentUser.identities?.some(i => i.provider === "google")) {
         const fullName = currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || "";
@@ -715,7 +714,7 @@ window.onload = async function () {
           { onConflict: "id", ignoreDuplicates: true }
         );
       }
-
+ 
       await loadCartFromDB();
       updateUserUI();
       hideAuthModal();
@@ -726,7 +725,8 @@ window.onload = async function () {
     }
     updateCartBadge();
   });
-
+ 
   updateCartBadge();
   navigateTo("home");
 };
+ 
