@@ -130,23 +130,19 @@ function initAuthModal() {
 
   // Google Sign-In (shared handler for both login & signup tabs)
   async function handleGoogleSignIn() {
-    const { error } = await supabase.auth.signInWithOAuth({
-  provider: 'google',
-  options: {
-    redirectTo: 'http://localhost:3000'
-  }
-});
-    if (error) {
-      // Show error in whichever tab is currently visible
-      const activeErr = document.getElementById("auth-login").style.display !== "none"
-        ? document.getElementById("login-error")
-        : document.getElementById("signup-error");
-      activeErr.textContent = error.message;
+  const { error } = await db.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin  // ✅ dynamically uses current domain
     }
-  }
+  });
 
-  document.getElementById("btn-google-login").addEventListener("click", handleGoogleSignIn);
-  document.getElementById("btn-google-signup").addEventListener("click", handleGoogleSignIn);
+  if (error) {
+    const activeErr = document.getElementById("auth-login").style.display !== "none"
+      ? document.getElementById("login-error")
+      : document.getElementById("signup-error");
+    activeErr.textContent = error.message;
+  }
 }
 
 async function onLogin() {
