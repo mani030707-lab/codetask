@@ -64,7 +64,9 @@ select:focus, input:focus { outline: 2px solid rgb(3, 205, 240); }
   font-weight: 700; cursor: pointer; margin-top: 4px;
 }
 .auth-submit-btn:hover { background-color: rgba(7, 207, 252, 0.95); }
-.auth-error   { color: #0ab7e7; font-size: 14px; margin-top: 10px; min-height: 18px; }
+
+/* FIX: auth-error must be red so users recognise it as an error */
+.auth-error   { color: #e53935; font-size: 14px; margin-top: 10px; min-height: 18px; }
 .auth-success { color: #27ae60; font-size: 14px; margin-top: 10px; min-height: 18px; }
 
 .auth-divider {
@@ -199,7 +201,12 @@ select:focus, input:focus { outline: 2px solid rgb(3, 205, 240); }
   margin-bottom: 8px; opacity: 0;
 }
 #page-home .added-to-cart img { height: 20px; margin-right: 5px; }
-#page-home .add-to-cart-button { width: 100%; padding: 8px; background-color: rgba(8, 188, 237, 0.899); border-radius: 50px; border: none; }
+
+/* FIX: add-to-cart-button needs explicit color so text is readable */
+#page-home .add-to-cart-button {
+  width: 100%; padding: 8px; color: rgb(33, 33, 33);
+  background-color: rgba(8, 188, 237, 0.899); border-radius: 50px; border: none;
+}
 
 /* ===== CHECKOUT PAGE ===== */
 #page-checkout .main { max-width: 1100px; padding-left: 30px; padding-right: 30px; margin-top: 100px; margin-bottom: 100px; margin-left: auto; margin-right: auto; }
@@ -218,7 +225,9 @@ select:focus, input:focus { outline: 2px solid rgb(3, 205, 240); }
 @media (max-width: 1000px) { #page-checkout .cart-item-details-grid { grid-template-columns: 100px 1fr; row-gap: 30px; } }
 #page-checkout .product-image { max-width: 100%; max-height: 120px; margin-left: auto; margin-right: auto; }
 #page-checkout .product-name { font-weight: 700; margin-bottom: 8px; }
-#page-checkout .product-price { color: rgb(12, 224, 235); font-weight: 700; margin-bottom: 5px; }
+
+/* FIX: product price in checkout should be dark/readable, not cyan */
+#page-checkout .product-price { color: rgb(33, 33, 33); font-weight: 700; margin-bottom: 5px; }
 #page-checkout .product-quantity .link-primary { margin-left: 3px; }
 @media (max-width: 1000px) { #page-checkout .delivery-options { grid-column: 1 / span 2; } }
 #page-checkout .delivery-options-title { font-weight: 700; margin-bottom: 10px; }
@@ -231,8 +240,18 @@ select:focus, input:focus { outline: 2px solid rgb(3, 205, 240); }
 #page-checkout .payment-summary-money { text-align: right; }
 #page-checkout .subtotal-row .payment-summary-money { border-top: 1px solid rgb(222,222,222); }
 #page-checkout .subtotal-row div { padding-top: 9px; }
-#page-checkout .total-row { color: rgb(12, 245, 245); font-weight: 700; font-size: 18px; border-top: 1px solid rgb(222,222,222); padding-top: 18px; }
-#page-checkout .place-order-button { width: 100%; padding-top: 12px; padding-bottom: 12px; border-radius: 8px; background-color: rgba(5, 183, 237, 0.899); margin-top: 11px; margin-bottom: 15px; border: none; }
+
+/* FIX: Order total row should use dark text, not cyan, so the amount is clearly readable */
+#page-checkout .total-row { color: rgb(33, 33, 33); font-weight: 700; font-size: 18px; border-top: 1px solid rgb(222,222,222); padding-top: 18px; }
+
+/* FIX: place-order-button needs explicit white text color */
+#page-checkout .place-order-button {
+  width: 100%; padding-top: 12px; padding-bottom: 12px; border-radius: 8px;
+  background-color: rgba(5, 183, 237, 0.899); color: white;
+  margin-top: 11px; margin-bottom: 15px; border: none;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+}
+#page-checkout .place-order-button:hover { background-color: rgba(3, 160, 210, 0.95); }
 
 /* ===== ORDERS PAGE ===== */
 #page-orders .main { max-width: 850px; margin-top: 90px; margin-bottom: 100px; padding-left: 20px; padding-right: 20px; margin-left: auto; margin-right: auto; }

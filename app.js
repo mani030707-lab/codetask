@@ -74,7 +74,7 @@ function updateCartBadge() {
 }
 
 // ============================================================
-//  AUTH MOD
+//  AUTH MODAL
 // ============================================================
 function showAuthModal() { document.getElementById("auth-modal").style.display = "flex"; }
 function hideAuthModal() { document.getElementById("auth-modal").style.display = "none"; }
@@ -97,6 +97,11 @@ function initAuthModal() {
     const errEl    = document.getElementById("login-error");
     errEl.textContent = "";
 
+    if (!email || !password) {
+      errEl.textContent = "Please enter your email and password.";
+      return;
+    }
+
     const { data, error } = await db.auth.signInWithPassword({ email, password });
     if (error) { errEl.textContent = error.message; return; }
 
@@ -113,6 +118,15 @@ function initAuthModal() {
     const sucEl    = document.getElementById("signup-success");
     errEl.textContent = ""; sucEl.textContent = "";
 
+    if (!name || !email || !password) {
+      errEl.textContent = "Please fill in all fields.";
+      return;
+    }
+    if (password.length < 6) {
+      errEl.textContent = "Password must be at least 6 characters.";
+      return;
+    }
+
     const { data, error } = await db.auth.signUp({
       email, password,
       options: { data: { full_name: name } }
@@ -128,14 +142,15 @@ function initAuthModal() {
     sucEl.textContent = "Account created! Check your email to confirm, then log in.";
   });
 
-  // Google Sign-In (shared handler for both login & signup tabs)
+  // FIX: Use db (the initialized Supabase client) instead of the raw supabase namespace.
+  // FIX: Use window.location.origin for redirectTo so it works in both dev and production.
   async function handleGoogleSignIn() {
-    const { error } = await supabase.auth.signInWithOAuth({
-  provider: 'google',
-  options: {
-    redirectTo: 'http://localhost:3000'
-  }
-});
+    const { error } = await db.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
     if (error) {
       // Show error in whichever tab is currently visible
       const activeErr = document.getElementById("auth-login").style.display !== "none"
@@ -686,7 +701,7 @@ window.onload = async function () {
     showAuthModal();
   }
 
-  // Listen for auth changes
+  // Listen for auth changes (handles Google OAuth redirect callbacks automatically)
   db.auth.onAuthStateChange(async (_event, session) => {
     if (session) {
       currentUser = session.user;
